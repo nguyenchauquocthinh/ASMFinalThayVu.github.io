@@ -54,7 +54,7 @@ try:
 
     fig5, ax5 = plt.subplots()
     sns.heatmap(df[['units_sold', 'price', 'promotion']].corr(), annot=True, cmap='coolwarm', ax=ax5)
-    ax5.set_title('Correlation Heatmap")
+    ax5.set_title('Correlation Heatmap')
     st.pyplot(fig5)
 
     # Modeling
