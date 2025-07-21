@@ -7,19 +7,27 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 import numpy as np
 
+# Cấu hình giao diện
 st.set_page_config(page_title="Weekly Product Demand Forecasting", layout="wide")
 st.title("📊 Weekly Product Demand Forecasting - ABC Manufacturing")
 
-uploaded_file = st.file_uploader("📁 Upload the file weekly_product_demand_3years.csv", type=["csv"])
-
-if uploaded_file is not None:
-    df = pd.read_csv(uploaded_file)
+# -------------------------------------
+# TỰ ĐỘNG TẢI DỮ LIỆU TỪ GITHUB RAW LINK
+# -------------------------------------
+@st.cache_data
+def load_data():
+  url = "https://raw.githubusercontent.com/quocthinh123/weekly-demand-forecast/main/weekly_product_demand_3years.csv"
+    df = pd.read_csv(url)
     df['week'] = pd.to_datetime(df['week'])
+    return df
+
+try:
+    df = load_data()
 
     st.subheader("1️⃣ Sample Data")
     st.dataframe(df.head())
 
-    # EDA Section
+    # EDA
     st.subheader("2️⃣ Exploratory Data Analysis")
 
     weekly_sales = df.groupby('week')['units_sold'].sum().reset_index()
@@ -46,21 +54,19 @@ if uploaded_file is not None:
 
     fig5, ax5 = plt.subplots()
     sns.heatmap(df[['units_sold', 'price', 'promotion']].corr(), annot=True, cmap='coolwarm', ax=ax5)
-    ax5.set_title('Correlation Heatmap')
+    ax5.set_title('Correlation Heatmap")
     st.pyplot(fig5)
 
     # Modeling
-    st.subheader("3️⃣ Train Forecasting Model")
+    st.subheader("3️⃣ Forecasting Model")
 
     df['week_num'] = df['week'].dt.isocalendar().week
     df['year'] = df['week'].dt.year
     df = pd.get_dummies(df, columns=['product', 'region'], drop_first=True)
 
     features = ['price', 'promotion', 'week_num', 'year'] + [col for col in df.columns if 'product_' in col or 'region_' in col]
-    target = 'units_sold'
-
     X = df[features]
-    y = df[target]
+    y = df['units_sold']
 
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
@@ -68,14 +74,11 @@ if uploaded_file is not None:
     model.fit(X_train, y_train)
     y_pred = model.predict(X_test)
 
-    mae = mean_absolute_error(y_test, y_pred)
-    rmse = np.sqrt(mean_squared_error(y_test, y_pred))
-    r2 = r2_score(y_test, y_pred)
-
-    st.success(f"✅ Model Evaluation:")
-    st.write(f"**MAE:** {mae:.2f}")
-    st.write(f"**RMSE:** {rmse:.2f}")
-    st.write(f"**R² Score:** {r2:.2f}")
+    # Evaluation
+    st.success("✅ Model Evaluation")
+    st.write(f"**MAE:** {mean_absolute_error(y_test, y_pred):.2f}")
+    st.write(f"**RMSE:** {mean_squared_error(y_test, y_pred, squared=False):.2f}")
+    st.write(f"**R² Score:** {r2_score(y_test, y_pred):.2f}")
 
     fig6, ax6 = plt.subplots()
     ax6.scatter(y_test, y_pred, alpha=0.4)
@@ -85,5 +88,7 @@ if uploaded_file is not None:
     ax6.set_title("Actual vs Predicted Units Sold")
     st.pyplot(fig6)
 
-else:
-    st.warning("👆 Please upload the CSV file to begin.")
+except Exception as e:
+    st.error("❌ Error loading data. Please make sure the GitHub link is correct.")
+    st.code(str(e))
+
