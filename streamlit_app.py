@@ -16,7 +16,7 @@ st.title("📊 Weekly Product Demand Forecasting - ABC Manufacturing")
 # -------------------------------------
 @st.cache_data
 def load_data():
- url = "https://raw.githubusercontent.com/nguyenchauquocthinh/ASMFinalThayVu.github.io/main/weekly_product_demand_3years.csv"
+    url = "https://raw.githubusercontent.com/nguyenchauquocthinh/ASMFinalThayVu.github.io/main/weekly_product_demand_3years.csv"
     df = pd.read_csv(url)
     df['week'] = pd.to_datetime(df['week'])
     return df
