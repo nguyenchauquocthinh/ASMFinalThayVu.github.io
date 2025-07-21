@@ -75,10 +75,15 @@ try:
     y_pred = model.predict(X_test)
 
     # Evaluation
+    mae = mean_absolute_error(y_test, y_pred)
+    rmse = np.sqrt(mean_squared_error(y_test, y_pred))
+    r2 = r2_score(y_test, y_pred)
+
     st.success("✅ Model Evaluation")
-    st.write(f"**MAE:** {mean_absolute_error(y_test, y_pred):.2f}")
-    st.write(f"**RMSE:** {mean_squared_error(y_test, y_pred, squared=False):.2f}")
-    st.write(f"**R² Score:** {r2_score(y_test, y_pred):.2f}")
+    st.write(f"**MAE:** {mae:.2f}")
+    st.write(f"**RMSE:** {rmse:.2f}")
+    st.write(f"**R² Score:** {r2:.2f}")
+
 
     fig6, ax6 = plt.subplots()
     ax6.scatter(y_test, y_pred, alpha=0.4)
